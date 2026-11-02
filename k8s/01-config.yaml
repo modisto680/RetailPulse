@@ -1,0 +1,61 @@
+# ============================================================
+# Configuration partagée : ConfigMap (paramètres) + Secret (identifiants).
+#
+# AVANT DE DÉPLOYER :
+#   1. Remplacer le mot de passe du Secret par une valeur réelle.
+#   2. Ne JAMAIS committer de vrais secrets en clair dans Git
+#      (cahier des charges §19). En production :
+#      kubectl create secret generic retailpulse-postgres \
+#        --from-literal=POSTGRES_USER=retail \
+#        --from-literal=POSTGRES_PASSWORD=<vrai-mot-de-passe> \
+#        -n retailpulse --dry-run=client -o yaml | kubectl apply -f -
+# ============================================================
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: retailpulse-config
+  namespace: retailpulse
+  labels:
+    app.kubernetes.io/part-of: retailpulse
+data:
+  # Kafka
+  KAFKA_BOOTSTRAP_SERVERS: "kafka:29092"
+  KAFKA_TOPIC_PRODUCTS: "retail-products"
+  KAFKA_TOPIC_CUSTOMERS: "retail-customers"
+  KAFKA_TOPIC_ORDERS: "retail-orders"
+  KAFKA_TOPIC_ORDER_EVENTS: "retail-order-events"
+  KAFKA_TOPIC_DLQ: "retail-events-dlq"
+  # PostgreSQL
+  POSTGRES_HOST: "postgres"
+  POSTGRES_PORT: "5432"
+  POSTGRES_DB: "retailpulse"
+  # API DummyJSON
+  DUMMYJSON_BASE_URL: "https://dummyjson.com"
+  DUMMYJSON_TIMEOUT_SECONDS: "30"
+  # Simulation (paramètres documentés du producteur)
+  PRODUCER_MIN_INTERVAL_MS: "500"
+  PRODUCER_MAX_INTERVAL_MS: "2000"
+  PRODUCER_PAYMENT_COMPLETED_RATE: "0.85"
+  PRODUCER_PAYMENT_FAILED_RATE: "0.10"
+  PRODUCER_DUPLICATE_RATE: "0.0"
+  PRODUCER_MAX_ITEMS_PER_ORDER: "4"
+  # Spark Structured Streaming
+  SPARK_WATERMARK_DELAY: "10 minutes"
+  SPARK_WINDOW_DURATION: "5 minutes"
+  SPARK_TRIGGER_INTERVAL: "10 seconds"
+  SPARK_CHECKPOINT_DIR: "/opt/spark/checkpoint"
+  # Dashboard
+  DASHBOARD_REFRESH_SECONDS: "10"
+---
+# VALEURS DE DÉMONSTRATION : remplacer avant tout usage réel.
+apiVersion: v1
+kind: Secret
+metadata:
+  name: retailpulse-postgres
+  namespace: retailpulse
+  labels:
+    app.kubernetes.io/part-of: retailpulse
+type: Opaque
+stringData:
+  POSTGRES_USER: "retail"
+  POSTGRES_PASSWORD: "CHANGE-ME-retailpulse"

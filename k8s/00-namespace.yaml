@@ -1,0 +1,8 @@
+# Namespace dédié : isole les charges de travail RetailPulse.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: retailpulse
+  labels:
+    app.kubernetes.io/name: retailpulse
+    app.kubernetes.io/part-of: retailpulse

@@ -1,0 +1,28 @@
+# Environnement et secrets
+.env
+*.env
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Spark
+checkpoint/
+spark-warehouse/
+derby.log
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+
+# Logs
+*.log
+logs/
+
+# Kafka data (local)
+data/

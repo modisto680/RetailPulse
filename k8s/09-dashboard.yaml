@@ -1,0 +1,73 @@
+# ============================================================
+# Deployment + Service : tableau de bord Streamlit.
+# Exposition NodePort 30085 : http://<node-ip>:30085
+# (NodePort OU Ingress selon l'environnement — cahier des charges §11.)
+# ============================================================
+apiVersion: v1
+kind: Service
+metadata:
+  name: dashboard
+  namespace: retailpulse
+  labels:
+    app.kubernetes.io/name: dashboard
+    app.kubernetes.io/part-of: retailpulse
+spec:
+  type: NodePort
+  selector:
+    app.kubernetes.io/name: dashboard
+  ports:
+    - name: http
+      port: 8501
+      targetPort: 8501
+      nodePort: 30085
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dashboard
+  namespace: retailpulse
+  labels:
+    app.kubernetes.io/name: dashboard
+    app.kubernetes.io/part-of: retailpulse
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: dashboard
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: dashboard
+        app.kubernetes.io/part-of: retailpulse
+    spec:
+      containers:
+        - name: dashboard
+          image: retailpulse/dashboard:1.0.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8501
+              name: http
+          envFrom:
+            - configMapRef:
+                name: retailpulse-config
+            - secretRef:
+                name: retailpulse-postgres
+          readinessProbe: # prêt seulement si Streamlit répond
+            httpGet:
+              path: /_stcore/health
+              port: 8501
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /_stcore/health
+              port: 8501
+            initialDelaySeconds: 30
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "192Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"

@@ -1,0 +1,2 @@
+requests>=2.31,<3
+confluent-kafka>=2.3,<3

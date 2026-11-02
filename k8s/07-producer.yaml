@@ -1,0 +1,42 @@
+# ============================================================
+# Deployment : producteur de simulation (activité continue).
+# 1 replica (la simulation est un flux unique et ordonné par commande).
+# terminationGracePeriodSeconds laissé à 30 s : le producteur gère SIGTERM
+# et fait un flush Kafka avant de s'arrêter (arrêt propre).
+# ============================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: producer
+  namespace: retailpulse
+  labels:
+    app.kubernetes.io/name: producer
+    app.kubernetes.io/part-of: retailpulse
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: producer
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: producer
+        app.kubernetes.io/part-of: retailpulse
+    spec:
+      terminationGracePeriodSeconds: 40
+      containers:
+        - name: producer
+          image: retailpulse/producer:1.0.0
+          imagePullPolicy: IfNotPresent
+          envFrom:
+            - configMapRef:
+                name: retailpulse-config
+            - secretRef:
+                name: retailpulse-postgres
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "192Mi"
+            limits:
+              cpu: "500m"
+              memory: "384Mi"

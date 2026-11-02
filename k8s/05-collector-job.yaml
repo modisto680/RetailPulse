@@ -1,0 +1,39 @@
+# ============================================================
+# Job : collecteur DummyJSON -> topics Kafka de référence.
+# Exécution ponctuelle ; idempotent (rejouable sans doublon).
+# ============================================================
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: collector
+  namespace: retailpulse
+  labels:
+    app.kubernetes.io/part-of: retailpulse
+spec:
+  backoffLimit: 3
+  activeDeadlineSeconds: 600
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: collector
+        app.kubernetes.io/part-of: retailpulse
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: collector
+          # Remplacer par l'image poussée dans votre registre, ex :
+          # image: ghcr.io/<votre-org>/retailpulse-collector:1.0.0
+          image: retailpulse/collector:1.0.0
+          imagePullPolicy: IfNotPresent
+          envFrom:
+            - configMapRef:
+                name: retailpulse-config
+            - secretRef:
+                name: retailpulse-postgres
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "256Mi"
