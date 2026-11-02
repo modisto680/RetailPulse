@@ -46,8 +46,8 @@ CREATE TABLE IF NOT EXISTS customers (
 -- --------------------------------------------------------------
 -- Table ORDERS : commandes simulées
 -- Alimentée par le job Spark Structured Streaming :
-   1) upsert à chaque ORDER_CREATED (statut PENDING) ;
-   2) mise à jour du statut à chaque événement de paiement.
+--   1) upsert à chaque ORDER_CREATED (statut PENDING) ;
+--   2) mise à jour du statut à chaque événement de paiement.
 -- (composant identifié : spark-streaming/spark_job.py, foreachBatch)
 -- --------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS orders (

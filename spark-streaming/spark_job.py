@@ -239,7 +239,11 @@ def main() -> int:
 
     # Référentiel produits (statique, ~200 lignes => broadcast)
     products = (
-        spark.read.jdbc(JDBC_URL, "(SELECT product_id, category FROM products) AS p", PG_PROPS)
+        spark.read.jdbc(
+            JDBC_URL,
+            "(SELECT product_id, category FROM products) AS p",
+            properties=PG_PROPS,
+        )
         .cache()
     )
     log.info("Référentiel produits chargé pour l'enrichissement : %d lignes",

@@ -62,9 +62,12 @@ def query(sql: str) -> pd.DataFrame:
         return pd.DataFrame()
 
 
-def scalar(sql: str) -> float:
+def scalar(sql: str) -> pd.Timestamp | None:
     df = query(sql)
-    return float(df.iloc[0, 0]) if not df.empty else 0.0
+    if df.empty:
+        return None
+    value = df.iloc[0, 0]
+    return None if pd.isna(value) else value
 
 
 # ---------------------------------------------------------------------------
@@ -125,8 +128,11 @@ with col_b:
     else:
         st.success("✅ PostgreSQL disponible")
 with col_c:
-    last_update = max(last_sales_update, last_order_update)
-    if last_update:
+    last_update = max(
+        (value for value in (last_sales_update, last_order_update) if value is not None),
+        default=None,
+    )
+    if last_update is not None:
         st.caption(f"Dernière donnée intégrée : **{last_update}** (UTC)")
     else:
         st.caption("Aucune donnée intégrée pour le moment.")
