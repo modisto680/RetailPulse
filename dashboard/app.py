@@ -24,11 +24,11 @@ Paramètres (variables d'environnement) :
 """
 
 import os
+import time
 
 import pandas as pd
 import psycopg2
 import streamlit as st
-from streamlit_autorefresh import st_autorefresh
 
 # ---------------------------------------------------------------------------
 # Configuration
@@ -44,8 +44,9 @@ REFRESH_SECONDS = int(os.getenv("DASHBOARD_REFRESH_SECONDS", "10"))
 
 st.set_page_config(page_title="RetailPulse", page_icon="🛒", layout="wide")
 
-# Auto-actualisation (fréquence documentée, 5–15 s).
-st_autorefresh(interval=REFRESH_SECONDS * 1000, key="dashboard-autorefresh")
+# Auto-actualisation NATIVE (fréquence documentée, 5–15 s) : le script se
+# relance lui-même via st.rerun() à la fin de la page (aucune dépendance
+# externe — streamlit-autorefresh est abandonné au profit des API natives).
 
 
 # ---------------------------------------------------------------------------
@@ -206,3 +207,10 @@ st.caption(
     "respectent les règles métier du pipeline (seuls les paiements complétés "
     "comptent dans le chiffre d'affaires ; montants en USD)."
 )
+
+# ---------------------------------------------------------------------------
+# Boucle d'auto-actualisation : relance complète du script toutes les N s.
+# (Dashboard en lecture seule : aucun widget interactif à interrompre.)
+# ---------------------------------------------------------------------------
+time.sleep(REFRESH_SECONDS)
+st.rerun()
